@@ -5,9 +5,19 @@ pool:
   vmImage: 'windows-latest'
 
 steps:
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    nuGetFeedType: 'internal'
+    publishVstsFeed: '31e2a4f2-8848-4e42-b906-d59b00d49410'
 - task: UseDotNet@2
   displayName: 'Install .NET Core SDK'
   inputs:
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    projects: '''**/*.csproj'''
     version: 8.x
     performMultiLevelLookup: true
     includePreviewVersions: true # Required for preview versions
@@ -27,3 +37,10 @@ steps:
     command: 'build'
     arguments: '--configuration $(buildConfiguration)'
   displayName: 'dotnet build $(buildConfiguration)'
+
+- task: NuGetCommand@2
+  inputs:
+    command: 'restore'
+    restoreSolution: '**/*.sln'
+    feedsToUse: 'select'
+
